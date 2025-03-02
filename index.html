@@ -12,24 +12,30 @@
       margin: 0;
       background-color: #121212;
       color: #fff;
+      overflow-x: hidden; /* Prevent horizontal scrolling */
     }
 
+    /* Banner Area */
     .banner {
-      padding: 30px;
+      padding: 20px;
       display: flex;
+      flex-direction: column; /* Stack elements vertically on smaller screens */
       align-items: center;
       justify-content: space-around;
-      height: 450px;
+      height: auto; /* Adjust height automatically */
+      min-height: 400px;
       background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://thecryptoradio.com/cloud/image/Inside-the-Studio-Photo-1-logo.webp');
       background-size: cover;
       background-position: center;
       position: relative;
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      text-align: center; /* Center text within the banner */
     }
 
+    /* Play/Pause Button */
     #play-pause-button {
-      font-size: 8em;
+      font-size: 6em; /* Adjust size for smaller screens */
       background: none;
       border: none;
       color: #fff;
@@ -43,25 +49,27 @@
       color: #4CAF50;
     }
 
+    /* Track Info */
     .track-info {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      width: 30%;
+      align-items: center; /* Center items horizontally */
+      width: 80%; /* Take up more width on smaller screens */
       background-color: rgba(50, 50, 50, 0.5);
       border-radius: 15px;
       padding: 20px;
       color: #eee;
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
       border: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 20px; /* Add spacing between button and track info */
     }
 
     #current-track,
     #next-track {
       margin: 8px 0;
-      font-size: 1.1em;
+      font-size: 1em; /* Adjust font size */
       color: #eee;
-      text-align: left;
+      text-align: center; /* Center text */
       padding: 12px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       width: 100%;
@@ -90,10 +98,41 @@
     }
 
     h1 {
-      font-size: 3em;
+      font-size: 2.5em; /* Adjust font size */
       font-weight: 500;
       letter-spacing: 1px;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+      margin-bottom: 20px; /* Add spacing below the heading */
+    }
+
+    /* Media Query for larger screens */
+    @media (min-width: 768px) {
+      .banner {
+        flex-direction: row; /* Restore horizontal layout */
+        height: 450px;
+        text-align: left; /* Restore left alignment */
+      }
+
+      #play-pause-button {
+        font-size: 8em;
+      }
+
+      .track-info {
+        align-items: flex-start; /* Restore left alignment */
+        width: 30%;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 3em;
+        margin-bottom: 0;
+      }
+
+      #current-track,
+      #next-track {
+        text-align: left; /* Restore left alignment */
+        font-size: 1.1em;
+      }
     }
   </style>
 </head>
@@ -147,7 +186,12 @@
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        currentTrackElement.textContent = 'Current Track: ' + data.data.title + ' - Start Time: ' + data.data.start_time;
+
+        // Convert start_time to local timezone
+        const startTimeUTC = new Date(data.data.start_time);
+        const startTimeLocal = startTimeUTC.toLocaleString();
+
+        currentTrackElement.textContent = 'Current Track: ' + data.data.title + ' - Start Time: ' + startTimeLocal;
       } catch (error) {
         console.error('Error fetching current track:', error);
         currentTrackElement.textContent = 'Error fetching current track';
