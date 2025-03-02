@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Crypto Radio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background-color: #121212;
+      color: #fff;
+    }
+
+    .banner {
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      height: 450px;
+      background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://thecryptoradio.com/cloud/image/Inside-the-Studio-Photo-1-logo.webp');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    #play-pause-button {
+      font-size: 8em;
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.2s ease-in-out, color 0.3s ease;
+    }
+
+    #play-pause-button:hover {
+      transform: scale(1.1);
+      color: #4CAF50;
+    }
+
+    .track-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 30%;
+      background-color: rgba(50, 50, 50, 0.5);
+      border-radius: 15px;
+      padding: 20px;
+      color: #eee;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #current-track,
+    #next-track {
+      margin: 8px 0;
+      font-size: 1.1em;
+      color: #eee;
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      width: 100%;
+      box-sizing: border-box;
+      transition: color 0.3s ease;
+    }
+
+    #current-track:hover,
+    #next-track:hover {
+      color: #B3E5FC;
+    }
+
+    #current-track:last-child,
+    #next-track:last-child {
+      border-bottom: none;
+    }
+
+    .main-content {
+      padding: 20px;
+      text-align: center;
+    }
+
+    audio {
+      position: absolute;
+      left: -9999px;
+    }
+
+    h1 {
+      font-size: 3em;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <div>
+      <h1>The Crypto Radio</h1>
+      <button id="play-pause-button">
+        <i class="fas fa-play-circle"></i>
+      </button>
+    </div>
+    <div class="track-info">
+      <div id="current-track">Loading Current Track...</div>
+      <div id="next-track">Loading Next Track...</div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- This area is intentionally left blank -->
+  </div>
+
+  <audio id="audio-player" src="https://streams.radio.co/s86f257c33/listen" preload="auto"></audio>
+
+  <script>
+    const audioPlayer = document.getElementById('audio-player');
+    const playPauseButton = document.getElementById('play-pause-button');
+    const currentTrackElement = document.getElementById('current-track');
+    const nextTrackElement = document.getElementById('next-track');
+    let isPlaying = false;
+
+    playPauseButton.addEventListener('click', () => {
+      if (isPlaying) {
+        audioPlayer.pause();
+        playPauseButton.innerHTML = '<i class="fas fa-play-circle"></i>';
+      } else {
+        audioPlayer.play();
+        playPauseButton.innerHTML = '<i class="fas fa-pause-circle"></i>';
+      }
+      isPlaying = !isPlaying;
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+      isPlaying = false;
+      playPauseButton.innerHTML = '<i class="fas fa-play-circle"></i>';
+    });
+
+    async function fetchCurrentTrack() {
+      try {
+        const response = await fetch('https://public.radio.co/api/v2/s86f257c33/track/current');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        currentTrackElement.textContent = 'Current Track: ' + data.data.title + ' - Start Time: ' + data.data.start_time;
+      } catch (error) {
+        console.error('Error fetching current track:', error);
+        currentTrackElement.textContent = 'Error fetching current track';
+      }
+    }
+
+    async function fetchNextTrack() {
+      try {
+        const response = await fetch('https://public.radio.co/stations/s86f257c33/next');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        nextTrackElement.textContent = 'Next Track: ' + data.next_track.title;
+      } catch (error) {
+        console.error('Error fetching next track:', error);
+        nextTrackElement.textContent = 'Error fetching next track';
+      }
+    }
+
+    function updateTrackData() {
+      fetchCurrentTrack();
+      fetchNextTrack();
+    }
+
+    // Fetch data immediately when the page loads
+    updateTrackData();
+
+    // Set interval to update track information frequently (e.g., every 5 seconds)
+    setInterval(updateTrackData, 5000);
+  </script>
+</body>
+</html>

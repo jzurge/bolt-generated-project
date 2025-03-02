@@ -1,0 +1,14 @@
+{
+  "name": "radio-player",
+  "version": "1.0.0",
+  "description": "A simple radio player webpage",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "vite": "^4.0.0"
+  },
+  "devDependencies": {}
+}
